@@ -9,14 +9,14 @@ if (Sys.getenv("BASE_DIR") != "") {
   num_sims = strtoi(Sys.getenv("NUM_SIMS"))
   horizon = strtoi(Sys.getenv("HORIZON"))
 } else {
-  baseDir = "annealing_softmax_results/"
+  baseDir = "ts_results/average"
   bestArm = 17
   numOfArms = 25
-  num_sims = 5000
-  horizon = 250
+  num_sims = 1000
+  horizon = 20000
 }
 
-caption = sprintf("Annealing Softmax [horizon: %d / simulates: %d]", horizon, num_sims)
+caption = sprintf("Thompson Sampling [horizon: %d / simulates: %d]", horizon, num_sims)
 simsFormat = sprintf("%dx%d_%dx%d", numOfArms, bestArm, horizon, num_sims)
 inputFileSims = sprintf("%s/%s.sims.tsv", baseDir, simsFormat)
 inputFileArms = sprintf("%s/%s.means.tsv", baseDir, simsFormat)
@@ -79,22 +79,32 @@ d <- ggplot(stats4, aes(x = T, y = V1)) +
 
 # シミュレート結果
 results <- fread(inputFileResults, header = F)
-names(results) <- c("Arm", "Value", "Count")
+names(results) <- c("Arm", "Value", "Alpha", "Beta")
 
 result1 <- ddply(results,
                  c("Arm"),
-                 function (df) {mean(df$Count)})
+                 function (df) {mean(df$Alpha)})
 m <- ggplot(result1, aes(x = Arm, y = V1)) +
   geom_line() +
   xlim(0, numOfArms) +
   ylim(0, horizon) +
-  labs(x="Arm", y="Count") +
-  ggtitle("Result Counts")
+  labs(x="Arm", y="Alpha") +
+  ggtitle("Result Alpha Counts")
 
 result2 <- ddply(results,
                  c("Arm"),
-                 function (df) {mean(df$Value)})
+                 function (df) {mean(df$Beta)})
 n <- ggplot(result2, aes(x = Arm, y = V1)) +
+  geom_line() +
+  xlim(0, numOfArms) +
+  ylim(0, horizon) +
+  labs(x="Arm", y="Beta") +
+  ggtitle("Result Beta Counts")
+
+result3 <- ddply(results,
+                 c("Arm"),
+                 function (df) {mean(df$Value)})
+o <- ggplot(result3, aes(x = Arm, y = V1)) +
   geom_line() +
   xlim(0, numOfArms) +
   ylim(0, 1) +
@@ -105,12 +115,13 @@ n <- ggplot(result2, aes(x = Arm, y = V1)) +
 library(grid)
 library(gridExtra)
 
-g <- arrangeGrob(x, a, b, c, d, m, n,
+g <- arrangeGrob(x, a, b, c, d, o, m, n,
                 layout_matrix = rbind(
-                    c(1,1),
-                    c(2,3),
+                    c(1, 1),
+                    c(2, 3),
                     c(4, 5),
-                    c(6, 7)
+                    c(6, 6),
+                    c(7, 8)
                 ),
                 top=caption)
 print(g)

@@ -1,15 +1,15 @@
-execfile("core.py")
+exec(open("core.py").read())
 
 import random
 
 random.seed(1)
 means = [0.1, 0.1, 0.1, 0.1, 0.9]
 n_arms = len(means)
-random.shuffle(means)
-arms = map(lambda (mu): BernoulliArm(mu), means)
+#random.shuffle(means)
+arms = list(map(lambda mu: BernoulliArm(mu), means))
 print("Best arm is " + str(ind_max(means)))
 
-f = open("algorithms/epsilon_greedy/standard_results.tsv", "w")
+f = open("/Users/automagi/workspace/R/standard_results.tsv", "w")
 
 for epsilon in [0.1, 0.2, 0.3, 0.4, 0.5]:
   algo = EpsilonGreedy(epsilon, [], [])

@@ -1,4 +1,5 @@
-execfile("core.py")
+#execfile("core.py")
+exec(open("core.py").read())
 
 arm1 = BernoulliArm(0.7)
 arm1.draw()
@@ -46,3 +47,4 @@ algo4.weights
 num_sims = 1000
 horizon = 10
 results = test_algorithm(algo1, arms, num_sims, horizon)
+
