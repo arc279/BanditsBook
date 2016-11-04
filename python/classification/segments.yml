@@ -1,0 +1,116 @@
+---
+- name: gender
+  label: "性別"
+  arms:
+      - name: male
+        label: "男性"
+        dummy:  # シミュレート用ダミーパラメータ
+          weight: 10        # 腕が選択される重み
+          bernoulli: 0.3    # 報酬獲得成功確率
+      - name: female
+        label: "女性"
+        dummy:
+          weight: 20
+          bernoulli: 0.6
+      - name: unknown
+        label: "不明"
+        dummy:
+          weight: 5
+          bernoulli: 0.2
+
+- name: marriage
+  label: "結婚の経験"
+  arms:
+      - name: married
+        label: "既婚"
+        dummy:
+          weight: 5
+          bernoulli: 0.4
+      - name: unmarried
+        label: "未婚"
+        dummy:
+          weight: 3
+          bernoulli: 0.6
+      - name: unknown
+        label: "不明"
+        dummy:
+          weight: 2
+          bernoulli: 0.3
+
+- name: income
+  label: "年収"
+  arms:
+      - name: 0-200
+        label: "200万未満"
+        dummy:
+          weight: 2
+          bernoulli: 0.3
+      - name: 200-400
+        label: "200万~400万"
+        dummy:
+          weight: 4
+          bernoulli: 0.5
+      - name: 400-600
+        label: "400万~600万"
+        dummy:
+          weight: 8
+          bernoulli: 0.7
+      - name: 600-800
+        label: "600万~800万"
+        dummy:
+          weight: 7
+          bernoulli: 0.7
+      - name: 800-1000
+        label: "800万~1000万"
+        dummy:
+          weight: 4
+          bernoulli: 0.8
+      - name: over1000
+        label: "1000万以上"
+        dummy:
+          weight: 2
+          bernoulli: 0.6
+      - name: unknown
+        label: "不明"
+        dummy:
+          weight: 2
+          bernoulli: 0.4
+
+- name: age
+  label: "年齢"
+  arms:
+      - name: 0-19
+        label: "未成年"
+        dummy:
+          weight: 8
+          bernoulli: 0.7
+      - name: 20-30
+        label: "20代"
+        dummy:
+          weight: 2
+          bernoulli: 0.3
+      - name: 30-40
+        label: "30代"
+        dummy:
+          weight: 2
+          bernoulli: 0.4
+      - name: 40-50
+        label: "40代"
+        dummy:
+          weight: 4
+          bernoulli: 0.8
+      - name: 50-60
+        label: "50代"
+        dummy:
+          weight: 8
+          bernoulli: 0.4
+      - name: over60
+        label: "60以上"
+        dummy:
+          weight: 9
+          bernoulli: 0.3
+      - name: unknown
+        label: "不明"
+        dummy:
+          weight: 2
+          bernoulli: 0.3
