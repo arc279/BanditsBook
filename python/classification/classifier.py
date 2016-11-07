@@ -1,7 +1,8 @@
+import numpy as np
 from algorithms.thompson_sampling import ts
 
 """ThompsonSamplingを用いたセグメント分類"""
-class BanditClassification():
+class BanditClassifier():
     def __init__(self, segment):
         self.name = segment["name"]
         self.label = segment["label"]
@@ -22,4 +23,10 @@ class BanditClassification():
     """事後分布"""
     def posterior_distribution(self):
         return list(zip(self.arm_names, self.algo.values))
+
+    def arm_weight(self):
+        return np.std(self.algo.values)
+
+    def arm_mean(self):
+        return np.mean(self.algo.values)
 

@@ -11,12 +11,12 @@
         label: "女性"
         dummy:
           weight: 20
-          bernoulli: 0.6
+          bernoulli: 0.3
       - name: unknown
         label: "不明"
         dummy:
           weight: 5
-          bernoulli: 0.2
+          bernoulli: 0.3
 
 - name: marriage
   label: "結婚の経験"
@@ -25,12 +25,12 @@
         label: "既婚"
         dummy:
           weight: 5
-          bernoulli: 0.4
+          bernoulli: 0.9
       - name: unmarried
         label: "未婚"
         dummy:
           weight: 3
-          bernoulli: 0.6
+          bernoulli: 0.1
       - name: unknown
         label: "不明"
         dummy:
@@ -82,8 +82,8 @@
       - name: 0-19
         label: "未成年"
         dummy:
-          weight: 8
-          bernoulli: 0.7
+          weight: 3
+          bernoulli: 0.3
       - name: 20-30
         label: "20代"
         dummy:
@@ -98,7 +98,7 @@
         label: "40代"
         dummy:
           weight: 4
-          bernoulli: 0.8
+          bernoulli: 0.3
       - name: 50-60
         label: "50代"
         dummy:

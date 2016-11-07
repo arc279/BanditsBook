@@ -3,45 +3,33 @@ import random
 import yaml
 import itertools
 import bisect
-from classification import BanditClassification
+import numpy as np
+
+from classification.classifier import BanditClassifier
+from classification.dummy_weight import DummmyWeightArms
 from pprint import pprint
 
+random.seed(1)
+
 # 試行回数
-n = int(sys.argv[1])
+n = int(sys.argv[1]) if len(sys.argv) == 2 else 10000
 
 # demo
 #--------------------
 # セグメント
 segments = yaml.load(open("classification/segments.yml").read())
-s = { x["name"]:BanditClassification(x) for x in segments }
+s = { x["name"]:BanditClassifier(x) for x in segments }
 
 #--------------------
 # ダミー確率
-class DummmyWeightArms:
-    def __init__(self, segment):
-        self.name = segment["name"]
-        values = [ (x['name'], x["dummy"]['weight'], x["dummy"]['bernoulli']) for x in segment["arms"] ]
-        self.n, self.w, self.b = zip(*values)
-        self.cumdist = list(itertools.accumulate(self.w))
-
-    def draw(self):
-        # 重み付き確率
-        x = random.random() * self.cumdist[-1]
-        a = bisect.bisect(self.cumdist, x)
-        # ベルヌーイ試行
-        if random.random() > self.b[a]:
-            reward = 0.0
-        else:
-            reward = 1.0
-
-        return (self.name, self.n[a], reward)
-
 w = [ DummmyWeightArms(x) for x in segments ]
 for x in w:
     pprint((x.name, list(zip(x.n, x.w, x.b))), stream=sys.stderr)
 
 #--------------------
 # 更新
+import datetime, pytz
+tz = pytz.timezone("Asia/Tokyo")
 for _ in range(n):
     a = random.choice(w)
     seg_name, arm_name, reward = a.draw()
@@ -49,13 +37,18 @@ for _ in range(n):
     segment.update(arm_name, reward)
 
     # ダミーログ出力
-    print("%s\t%s\t%d" % (seg_name, arm_name, reward), file=sys.stdout)
+    now = datetime.datetime.now(tz).strftime('%Y-%m-%dT%H:%M:%S%z')
+    print("%s\t%s\t%s\t%d\t%f" % (now, seg_name, arm_name, reward, segment.arm_weight()), file=sys.stdout)
 
 #--------------------
 # 結果表示
 print("-"*50, file=sys.stderr)
 for n, x in s.items():
-    pprint((n, list(zip(x.arm_names, x.algo.values, x.algo.counts_alpha, x.algo.counts_beta))), stream=sys.stderr)
+    var = x.arm_weight()
+    mean = x.arm_mean()
+    pprint((n, ("var", var), ("mean", mean),
+        list(zip(x.arm_names, x.algo.values, x.algo.counts_alpha, x.algo.counts_beta))), stream=sys.stderr)
+
 
 # ダミーログ出力
 #>>> stdout

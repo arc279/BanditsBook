@@ -1,11 +1,11 @@
 import random
 import yaml
-from classification import BanditClassification
+from classification import BanditClassifier
 
 #--------------------
 # demo
 segments = yaml.load(open("classification/segments.yml").read())
-s = { x["name"]:BanditClassification(x) for x in segments }
+s = { x["name"]:BanditClassifier(x) for x in segments }
 
 from pprint import pprint
 income = s["income"]
