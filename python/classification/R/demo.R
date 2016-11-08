@@ -12,7 +12,7 @@ names(data) <- c("Id", "Time", "SegName", "ArmName", "Reward")
 segments <- list("age", "gender", "income", "marriage")
 
 n = nrow(data)
-caption = sprintf("%d Simulates of some segments classify with bandit [Thompson Sampling]", n)
+caption = sprintf("%d Simulates of some segments classify with Bandit [Thompson Sampling]", n)
 
 d0 <- data %>%
   dplyr::group_by(SegName, ArmName)%>%
@@ -26,15 +26,17 @@ for (s in segments) {
     tidyr::gather(D1, Value, c(Alpha, Beta, Value))
     
   d1 <- dh %>% dplyr::filter(D1 != "Value")
-  a <- ggplot(d1, aes(x=ArmName, y=Value, fill=D1)) + 
-    geom_bar(width = 0.7, stat = "identity") + 
-    ylab(sprintf("Counts [%s]", s))
-  
+  a <- ggplot(d1, aes(x=ArmName, y=Value, fill=D1)) +
+    geom_bar(width = 0.8, stat = "identity") +
+    ylab("Counts") +
+    xlab(sprintf("ArmName [%s]", s))
+
   d2 <- dh %>% dplyr::filter(D1 == "Value")
   b <- ggplot(d2, aes(x=ArmName, y=Value, group=D1, color=D1)) + 
-    geom_line() + 
-    ylab(sprintf("CVR [%s]", s))
-
+    geom_line() +
+    ylab("CVR") + 
+    xlab(sprintf("ArmName [%s]", s))
+  
   j <- c(j, list(a, b))
 }
 
