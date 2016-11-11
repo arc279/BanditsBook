@@ -34,7 +34,7 @@ v4 <- dcast(data, Id ~ SegName + ArmName, value.var = "Reward")
 c3 <- subset(data, SegName %in% c("age"))
 c4 <- subset(data, SegName %in% c("gender"))
 c5 <- inner_join(c3, c4, by="Id")
-print(c5)
+#print(c5)
 
 c6 <- acast(c5, ArmName.x + ArmName.y ~ Reward.x + Reward.y, length)
 

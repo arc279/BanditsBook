@@ -24,7 +24,7 @@ for (s in segments) {
     dplyr::group_by(SegName, ArmName)%>%
     dplyr::filter(SegName == s) %>%
     tidyr::gather(D1, Value, c(Alpha, Beta, Value))
-    
+
   d1 <- dh %>% dplyr::filter(D1 != "Value")
   a <- ggplot(d1, aes(x=ArmName, y=Value, fill=D1)) +
     geom_bar(width = 0.8, stat = "identity") +
@@ -32,11 +32,11 @@ for (s in segments) {
     xlab(sprintf("ArmName [%s]", s))
 
   d2 <- dh %>% dplyr::filter(D1 == "Value")
-  b <- ggplot(d2, aes(x=ArmName, y=Value, group=D1, color=D1)) + 
+  b <- ggplot(d2, aes(x=ArmName, y=Value, group=D1, color=D1)) +
     geom_line() +
-    ylab("CVR") + 
+    ylab("CTR") +
     xlab(sprintf("ArmName [%s]", s))
-  
+
   j <- c(j, list(a, b))
 }
 

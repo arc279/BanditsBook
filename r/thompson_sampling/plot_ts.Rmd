@@ -1,0 +1,139 @@
+---
+title: "バンディットアルゴリズムシミュレート"
+output:
+  pdf_document:
+    latex_engine: xelatex
+  html_document: default
+mainfont: Hiragino Kaku Gothic Pro
+---
+
+```{r setup, include=FALSE, message=FALSE}
+library(plyr)
+library(ggplot2)
+library(data.table)
+library(grid)
+library(gridExtra)
+
+setwd("/Users/automagi/workspace/R")
+if (Sys.getenv("BASE_DIR") != "") {
+  base_dir = Sys.getenv("BASE_DIR")
+  file_format = Sys.getenv("SAVE_FORMAT")
+  num_sims = strtoi(Sys.getenv("NUM_SIMS"))
+  horizon = strtoi(Sys.getenv("HORIZON"))
+} else {
+  base_dir = "ts_results"
+  num_sims = 100
+  horizon = 1000
+  mean_type = "random"
+  datetime = "20161109_185613"
+  file_format = sprintf("%s.%dx%d.%s", mean_type, horizon, num_sims, datetime)
+}
+
+inputFileArms = sprintf("%s/%s.arms.tsv", base_dir, file_format)
+inputFileSims = sprintf("%s/%s.sims.tsv", base_dir, file_format)
+
+arms <- fread(inputFileArms, header = F)
+names(arms) <- c("ArmNum", "BestArm", "Arm", "Mean", "Value", "Alpha", "Beta")
+arms <- transform(arms, Name = factor(sprintf("%d arms[best:%d]", ArmNum, BestArm)))
+
+sims <- fread(inputFileSims, header = F)
+names(sims) <- c("ArmNum", "BestArm", "Sim", "T", "ChosenArm", "Reward", "CumulativeReward")
+sims <- transform(sims, Name = factor(sprintf("%d arms[best:%d]", ArmNum, BestArm)))
+
+# フィルタ
+#arms <- subset(arms, ArmNum >= 50)
+#sims <- subset(sims, ArmNum >= 50)
+
+stats <- ddply(sims,
+                .(Name, T),
+                summarize,
+                av = mean(Reward),
+                var = var(ChosenArm),
+                cm = mean(CumulativeReward),
+                sel = mean(ChosenArm == BestArm))
+
+results <- ddply(arms,
+            .(Name, Arm),
+            summarize,
+            alpha = mean(Alpha),
+            beta = mean(Beta),
+            value = mean(Value))
+```
+
+# Thompson Sampling `r sprintf("(%d[horizon] x %d[simulates])", horizon, num_sims)`
+
+`r file_format`
+
+## 事前確率（腕の尤度）
+```{r arms, include=TRUE, message=FALSE}
+head(arms)
+
+ggplot(arms, aes(x = Arm, y = Mean, group = Name, color = Name)) +
+  geom_line() + 
+  ylim(0, 1) +
+  labs(x = "Arm", y = "Value") + 
+  ggtitle("Means")
+```
+
+## シミュレート結果
+```{r sims, include=TRUE, message=FALSE}
+head(sims)
+```
+
+### Performance
+```{r Performance, include=TRUE, message=FALSE}
+# Plot average reward as a function of time.
+s1 <- ggplot(stats, aes(x = T, y = av, group = Name, color = Name)) +
+        geom_line() +
+        ylim(0, 1) +
+        labs(x="Time", y="Average Reward") +
+        ggtitle("Performance")
+
+# Plot frequency of selecting correct arm as a function of time.
+# In this instance, 5 is the correct arm.
+s2 <- ggplot(stats, aes(x = T, y = sel, group = Name, color = Name)) +
+        geom_line() +
+        ylim(0, 1) +
+        labs(x="Time", y="Probability of Selecting Best Arm") +
+        ggtitle("Accuracy")
+
+# Plot variance of chosen arms as a function of time.
+s3 <- ggplot(stats, aes(x = T, y = var, group = Name, color = Name)) +
+        geom_line() +
+        labs(x="Time", y="Variance of Chosen Arm") +
+        ggtitle("Variability")
+
+# Plot cumulative reward as a function of time.
+s4 <- ggplot(stats, aes(x = T, y = cm, group = Name, color = Name)) +
+        geom_line() +
+        labs(x="Time", y="Cumulative Reward of Chosen Arm") +
+        ggtitle("Cumulative Reward")
+
+g1 <- arrangeGrob(s1, s2, s3, s4, ncol=2)
+grid.draw(g1)
+```
+
+## 事後分布
+
+```{r Alpha Counts, include=TRUE, message=FALSE}
+r1 <- ggplot(results, aes(x = Arm, y = alpha, group = Name, color = Name)) +
+      geom_line() + 
+      ylim(0, horizon) +
+      labs(x="Arm", y="Alpha") +
+      ggtitle("Alpha Counts")
+
+r2 <- ggplot(results, aes(x = Arm, y = beta, group = Name, color = Name)) +
+      geom_line() + 
+      ylim(0, horizon) +
+      labs(x="Arm", y="Beta") +
+      ggtitle("Beta Counts")
+
+r3 <- ggplot(results, aes(x = Arm, y = value, group = Name, color = Name)) +
+      geom_line() + 
+      ylim(0, 1) +
+      labs(x="Arm", y="Value") + 
+      ggtitle("Result Values")
+
+g2 <- arrangeGrob(r1, r2, r3, ncol=1)
+grid.draw(g2)
+```
