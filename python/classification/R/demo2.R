@@ -4,39 +4,51 @@ library(ggplot2)
 library(data.table)
 library(reshape2)
 
-data <- fread("demo/out.log", header = F)
-names(data) <- c("Id", "Time", "SegName", "ArmName", "Reward")
-segments <- list("age", "gender", "income", "marriage")
+setwd("/Users/automagi/workspace/BanditsBook/python/classification/R")
+#data <- fread("../../out.oneline.log", header = F)
+#names(data) <- c("Id", "Time", "Reward", "gender", "marriage", "income", "age")
+#d0 = melt(data, measure.var = c("gender", "marriage", "income", "age"))
+#d1 = dcast(d0, Id + Time + Reward ~ variable)
 
-data[, Time:=NULL]
+data2 <- fread("../../out.log", header = F)
+names(data2) <- c("Id", "Time", "Reward", "SegName", "ArmName")
+d2 = dcast(data2, Id + Time + Reward ~ SegName, value.var = "ArmName")
 
-d0 <- data %>%
-  dplyr::group_by(SegName, ArmName) %>%
-  dplyr::summarise(Alpha=sum(Reward == 1), Beta=sum(Reward == 0), Value=Alpha/(Alpha+Beta))
+b = names(d2)
+c = b[!b %in% c("Id", "Time", "Reward")]
+c2 = combn(c, 2)
+print(c2)
+
+# table 用メソッド追加
+fortify.table <- function(model, ...) {
+  data <- reshape2::melt(model)
+  return(data)
+}
+
+# draw
 library(grid)
 library(gridExtra)
-c1 <- subset(d0, SegName == "age")
-c2 <- subset(d0, SegName == "gender")
-g1 <- ggplot(c1, aes(x=ArmName, y=Value, group = 1)) + geom_line()
-g2 <- ggplot(c2, aes(x=ArmName, y=Value, group = 1)) + geom_line()
-g <- arrangeGrob(g1, g2)
+j <- list()
+for(i in 1:ncol(c2)) {
+  x <- c2[1, i]
+  y <- c2[2, i]
+  f <- sprintf("Reward~%s+%s", x, y)
+  t <- xtabs(as.formula(f), data=d2, subset = Reward == 1)
+  print(t)
+  p <- ggplot(data=t) + 
+        geom_bar(aes_string(x, y="value", fill=y), stat="identity") + 
+#        coord_flip() +
+        ggtitle(sprintf("%s + %s", x, y))
+  j <- c(j, list(p))
+}
+
+caption = "Crosstab Segments"
+j <- c(j, ncol=2, top=caption)
+g <- do.call(arrangeGrob, j)
 grid.draw(g)
+ggsave(file="demo2.png", g, dpi = 100, width = 14, height = 16)
 
 
-v1 <- acast(data, SegName + ArmName ~ Reward, value.var = "Reward", length)
-v2 <- acast(data, ArmName ~ Reward ~ SegName, value.var = "Reward", length)
-#print(v2[,1,])
-#print(v2[,2,])
-v3 <- dcast(data, SegName + ArmName ~ Reward, value.var = "Reward", length)
-v4 <- dcast(data, Id ~ SegName + ArmName, value.var = "Reward")
-
-
-c3 <- subset(data, SegName %in% c("age"))
-c4 <- subset(data, SegName %in% c("gender"))
-c5 <- inner_join(c3, c4, by="Id")
-#print(c5)
-
-c6 <- acast(c5, ArmName.x + ArmName.y ~ Reward.x + Reward.y, length)
-
-c7 <- cbind(c6, CrossSegment = rownames(c6))
-rownames(c7) <- NULL
+###
+# t2 = as.data.frame.matrix(t)
+# pairs.panels(t2,hist.col="white",rug=F,ellipses=F,lm=T)

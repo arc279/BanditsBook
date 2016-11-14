@@ -6,17 +6,19 @@
         label: "男性"
         dummy:  # シミュレート用ダミーパラメータ
           weight: 10        # 腕が選択される重み
-          bernoulli: 0.3    # 報酬獲得成功確率
+          bernoulli: 0.2    # 報酬獲得成功確率
       - name: female
         label: "女性"
         dummy:
           weight: 20
-          bernoulli: 0.3
+          bernoulli: 0.8
       - name: unknown
         label: "不明"
         dummy:
-          weight: 5
+          weight: 3
           bernoulli: 0.3
+  dummy:  # シミュレート用ダミーパラメータ
+    weight: 40        # セグメントの効き具合
 
 - name: marriage
   label: "結婚の経験"
@@ -25,17 +27,19 @@
         label: "既婚"
         dummy:
           weight: 5
-          bernoulli: 0.9
+          bernoulli: 0.1
       - name: unmarried
         label: "未婚"
         dummy:
-          weight: 3
-          bernoulli: 0.1
+          weight: 5
+          bernoulli: 0.8
       - name: unknown
         label: "不明"
         dummy:
-          weight: 2
-          bernoulli: 0.3
+          weight: 1
+          bernoulli: 0.1
+  dummy:
+    weight: 5
 
 - name: income
   label: "年収"
@@ -75,6 +79,8 @@
         dummy:
           weight: 2
           bernoulli: 0.4
+  dummy:
+    weight: 15
 
 - name: age
   label: "年齢"
@@ -93,12 +99,12 @@
         label: "30代"
         dummy:
           weight: 2
-          bernoulli: 0.4
+          bernoulli: 0.8
       - name: 40-50
         label: "40代"
         dummy:
           weight: 4
-          bernoulli: 0.3
+          bernoulli: 0.9
       - name: 50-60
         label: "50代"
         dummy:
@@ -108,9 +114,11 @@
         label: "60以上"
         dummy:
           weight: 9
-          bernoulli: 0.3
+          bernoulli: 0.1
       - name: unknown
         label: "不明"
         dummy:
           weight: 2
           bernoulli: 0.3
+  dummy:
+    weight: 10

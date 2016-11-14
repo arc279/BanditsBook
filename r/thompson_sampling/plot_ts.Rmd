@@ -1,9 +1,9 @@
 ---
 title: "バンディットアルゴリズムシミュレート"
 output:
+  html_document: default
   pdf_document:
     latex_engine: xelatex
-  html_document: default
 mainfont: Hiragino Kaku Gothic Pro
 ---
 
